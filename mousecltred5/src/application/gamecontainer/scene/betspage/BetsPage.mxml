@@ -1,0 +1,109 @@
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" implements="utils.interfaces.ISceneContent"
+		 xmlns:s="library://ns.adobe.com/flex/spark" width="100%" height="100%" initialize="onInit(event)"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" left="50" right="50" top="20" bottom="20" xmlns:iconswf="application.components.iconswf.*" xmlns:catalog="application.gamecontainer.scene.catalog.*" xmlns:iteminfo="application.gamecontainer.scene.catalog.iteminfo.*" xmlns:bar="application.gamecontainer.scene.catalog.bar.*" xmlns:input="application.gamecontainer.chat.input.*" xmlns:button="application.components.button.*">
+	<fx:Script>
+		<![CDATA[
+			import application.GameApplication;
+			import application.components.popup.createbetgame.PopUpCreateBetGame;
+			import application.components.popup.help.bets.PopUpHelpBets;
+			import application.gamecontainer.scene.betpage.betgameitem.BetGameItem;
+			import application.gamecontainer.scene.betspage.betsgameitem.BetsGameItem;
+			
+			import flash.utils.clearInterval;
+			import flash.utils.setInterval;
+			
+			import mx.events.FlexEvent;
+			
+			import utils.game.betroominfo.GameBetRoomInfo;
+			import utils.interfaces.ISceneContent;
+			
+			private var _sid:int = -1;
+			
+			protected function onInit(event:FlexEvent):void{
+				_sid = setInterval(updateBetGames, 5000);
+				updateBetGames();
+				
+				addWarning();
+			}
+			
+			private function addWarning():void{
+				var spacer:Spacer = new Spacer();
+				spacer.height = 70;
+				games.addElement(spacer);
+				var l:Label = new Label();
+				l.setStyle("color", 0xffffff);
+				l.text = "Нет доступных предложений. Дождитесь нового предложения или создайте свою игру..."
+				games.addElement(l);
+			}
+			
+			public function updateBetGames():void{				
+				GameApplication.app.gamemanager.getBetsGamesInfo(onGetRooms);
+			} 
+			
+			private function onGetRooms(rooms:Array):void{
+				games.removeAllElements();
+				
+				var addrooms:Boolean = false;
+				for(var i:uint; i < rooms.length; i++){
+					
+					var item:BetsGameItem = new BetsGameItem();
+					item.roomInfo = rooms[i];
+					games.addElement(item);
+					addrooms = true;
+				}
+				
+				if (!addrooms){
+					addWarning();
+				}
+			}
+			
+			public function onHide():void{
+				if (_sid != -1){
+					clearInterval(_sid);
+					_sid = -1;
+				}
+				games.removeAllElements();
+			}
+			
+			protected function onBack(event:MouseEvent):void{
+				GameApplication.app.navigator.goHome();
+				onHide();
+			}
+			
+			
+			protected function onCreate(event:MouseEvent):void
+			{
+				GameApplication.app.gamemanager.createBetsGame();
+			}
+			
+			protected function showHelp(event:MouseEvent):void
+			{
+				GameApplication.app.popuper.show(new PopUpHelpBets());
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%" radiusX="30" radiusY="30">
+		<s:fill>
+			<s:SolidColor color="0x000000" alpha=".5"/>
+		</s:fill>
+	</s:Rect>
+	<s:VGroup width="100%" height="100%" paddingLeft="20" paddingRight="20">
+		<mx:Spacer height="10"/>
+		<s:Label width="100%" textAlign="center" text="Забеги на ставки" fontSize="30" color="0xffffff" fontWeight="bold" fontStyle="italic"/>
+		<s:HGroup verticalAlign="middle" width="100%" horizontalAlign="center" click="showHelp(event)" buttonMode="true">
+			<s:Label height="13" textDecoration="underline" fontSize="12" color="0xFFFFCC" text="Правила игры на ставки"/>		
+		</s:HGroup>
+		
+		<s:Scroller width="100%" height="100%">
+			<s:VGroup id="games" width="100%" height="100%" horizontalAlign="center"/>
+		</s:Scroller>
+		<mx:Spacer height="10"/>
+		<s:HGroup verticalAlign="middle" width="100%">
+			<button:GameButton id="createbtn" label="создать игру" click="onCreate(event)"/>
+			<mx:Spacer width="100%"/>
+			<button:GameButton id="back" label="назад" click="onBack(event)"/>
+		</s:HGroup>
+		<mx:Spacer height="5"/>
+	</s:VGroup>
+</s:Group>

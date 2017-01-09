@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" top="35" width="100%" height="100%" xmlns:experience="application.gamecontainer.persinfobar.experience.*" xmlns:energy="application.gamecontainer.persinfobar.energy.*" xmlns:button="application.components.button.*" xmlns:popular="application.gamecontainer.persinfobar.popular.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import application.GameApplication;
+			import application.gamecontainer.scene.clans.ClanRoom;
+			
+			import utils.managers.gameparams.GameParamsManager;
+			import utils.shop.CategoryType;
+			import utils.user.Accessorytype;
+			import utils.user.ClanUserRole;
+			import utils.user.ColorType;
+			import utils.user.Sex;
+			import utils.user.User;
+			[Bindable]
+			private var _user:User;
+			
+			public function set user(u:User):void{
+				_user = u;
+				if (_user.sex == Sex.MALE){
+					sex.text = "мужской";
+				}else{
+					sex.text = "женский";
+				}
+				if(_user.claninfo.clanid > 0 && _user.claninfo.clanrole > ClanUserRole.INVITED){
+					clan.text = _user.claninfo.clantitle;
+				}
+				
+				var SkinClass:Class = User.getSkinClassByColorType(u.colortype);
+				var _mousemc:MovieClip = new SkinClass();				
+				_mousemc.scaleX = _mousemc.scaleY = 2;		
+				_mousemc.gotoAndStop(1);
+				mouseui.addChild(_mousemc);
+				
+				var accessoryClass:Class = User.getAccessoryClass(u.accessorytype);
+				var accessorymc:MovieClip = new accessoryClass();
+				accessorymc.scaleX = accessorymc.scaleY = _mousemc.scaleX;
+				accessorymc.gotoAndStop(1);
+				mouseui.addChild(accessorymc);
+				
+				if(GameParamsManager.getKSpeed(u.accessorytype, u.colortype) == 1.7){
+					speed.text = "да (х2)";
+				}else if(GameParamsManager.getKSpeed(u.accessorytype, u.colortype) == 2){
+					speed.text = "да (x3)";
+				}else{
+					speed.text = "нет (нет)";
+				}
+				if(GameParamsManager.getKJump(u.accessorytype, u.colortype) == 1.2){
+					jump.text = "да (x2)";
+				}else if(GameParamsManager.getKJump(u.accessorytype, u.colortype) == 1.3){
+					jump.text = "да (x3)";
+				}else{
+					jump.text = "нет (нет)";
+				}				
+				if(GameParamsManager.getEnergyUp(u.accessorytype, u.colortype)){
+					energy.text = "да";
+				}else{
+					energy.text = "нет";
+				}
+				if(GameParamsManager.getExperienceBonus(u.accessorytype, u.colortype)){
+					exp.text = "да";
+				}else{
+					exp.text = "нет";
+				}
+				if(GameParamsManager.getExperienceClanBonus(u.accessorytype, u.colortype)){
+					cexp.text = "да";
+				}else{
+					cexp.text = "нет";
+				}
+				if(GameParamsManager.getMoneyBonus(u.accessorytype, u.colortype)){
+					money.text = "да";
+				}else{
+					money.text = "нет";
+				}				
+				if(GameParamsManager.getBooking(u.accessorytype, u.colortype)){
+					booking.text = "да";
+				}else{
+					booking.text = "нет";
+				}
+				
+				var minute:int = 60;
+				var hour:int = 60 * 60;
+				var day:int = 60 * 60 * 24;
+				
+				var days:int;
+				var hours:int;
+				var minuts:int;
+								
+				if(u.colortime > 0 && u.colortype != ColorType.GRAY){
+					days = Math.floor(u.colortime / day);
+					hours = Math.floor((u.colortime - days * day) / hour);
+					minuts = Math.floor((u.colortime - days * day - hours * hour) / minute);
+					colortime.text = "";
+					if(days > 0) colortime.text += days + "дн ";
+					if(hours > 0) colortime.text += hours + "ч ";
+					if(minuts > 0) colortime.text += minuts + "мин";
+				}
+
+				if(u.accessorytime > 0 && u.accessorytype != Accessorytype.NOACCESSORY){
+					days = Math.floor(u.accessorytime / day);
+					hours = Math.floor((u.accessorytime - days * day) / hour);
+					minuts = Math.floor((u.accessorytime - days * day - hours * hour) / minute);
+					accessorytime.text = "";
+					if(days > 0) accessorytime.text += days + "дн ";
+					if(hours > 0) accessorytime.text += hours + "ч ";
+					if(minuts > 0) accessorytime.text += minuts + "мин";
+				}
+			}
+
+			protected function gamebutton1_clickHandler(event:MouseEvent):void
+			{
+				GameApplication.app.popuper.hidePopUp();
+				GameApplication.app.navigator.goShop(CategoryType.ACCESSORIES);
+			}
+
+
+			protected function gamebutton2_clickHandler(event:MouseEvent):void
+			{
+				GameApplication.app.apimanager.showBuyMoneyPopUp();
+			}
+
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%" height="100%">
+		<s:HGroup width="100" height="100%" verticalAlign="middle" horizontalAlign="center">
+			<mx:UIComponent id="mouseui"/>	
+		</s:HGroup>
+		<s:VGroup width="100%" height="100%">		
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Имя пользователя:" width="155" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="nick" text="{_user.title}" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="userid" text="({_user.id})" color="0xcccccc" fontSize="10" fontWeight="normal"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Уровень пользователя:" width="155" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="level" text="[{_user.level}]" color="0x00FFFF" fontSize="14" fontWeight="normal"/>			
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Клан: " width="155" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="clan" text="не состоит в клане" color="0xFF9933" fontSize="14" fontWeight="normal"/>			
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Пол:" width="155" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="sex" color="0xffffff" fontSize="14" fontWeight="normal"/>			
+			</s:HGroup>
+			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Популярнность:" width="155" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<popular:PopularIndicator popular="{_user.popular}" width="170"/>			
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Опыт:" width="155" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<experience:ExperienceIndicator experience="{_user.experience}" maxexperience="{_user.maxExperience}" width="170"/>			
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Опыт за час: " width="155" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="exphour" text="+ {_user.exphour}" color="0xFF9933" fontSize="14" fontWeight="normal"/>			
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Опыт за день: " width="155" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="expday" text="+ {_user.expday}" color="0xFF9933" fontSize="14" fontWeight="normal"/>			
+			</s:HGroup>
+			<!--<s:HGroup verticalAlign="middle">
+				<s:Label text="Энергия:" width="155" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<energy:EnergyIndicator energy="{_user.energy}" maxenergy="{_user.maxEnergy}" width="170"/>			
+			</s:HGroup>-->
+			
+			<mx:Spacer height="10"/>
+			<s:Label text="Действия облика мыши" width="220" color="0xFF9933" fontSize="14" fontWeight="normal"/>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Время до окончания цвета:" width="220" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="colortime" text="-" color="0xffffff" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Время до окончания аксессуара:" width="220" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="accessorytime" text="-" color="0xffffff" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+			
+			<mx:Spacer height="5"/>
+			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Увеличение скорости:" width="220" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="speed" text="да" color="0xffffff" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Увеличение силы прыжка:" width="220" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="jump" text="да" color="0xffffff" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Защита от выстрелов:" width="220" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="booking" text="да" color="0xffffff" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Восстановление энергии:" width="220" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="energy" text="да" color="0xffffff" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Бонус к опыту:" width="220" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="exp" text="да" color="0xffffff" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Бонус к опыту клана:" width="220" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="cexp" text="да" color="0xffffff" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Бонус к денежному призу:" width="220" color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<s:Label id="money" text="да" color="0xffffff" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+			<s:Label text="* Внимание! Усиление прыжка и скорости может быть х2 и х3 в зависимости от количества усилителей." width="300" color="0xffffff" fontSize="10" fontWeight="normal"/>
+			<s:HGroup width="100%" verticalAlign="middle">				
+				<button:GameButton label="перейти в магазин" click="gamebutton1_clickHandler(event)"/>
+				<button:GameButton label="пополнить счет" click="gamebutton2_clickHandler(event)"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:HGroup>	
+</s:Group>

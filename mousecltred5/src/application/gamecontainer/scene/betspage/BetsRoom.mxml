@@ -1,0 +1,143 @@
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" implements="utils.interfaces.ISceneContent"
+		 xmlns:s="library://ns.adobe.com/flex/spark" width="100%" height="100%"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" left="50" right="50" top="20" bottom="20" xmlns:iconswf="application.components.iconswf.*" xmlns:catalog="application.gamecontainer.scene.catalog.*" xmlns:iteminfo="application.gamecontainer.scene.catalog.iteminfo.*" xmlns:bar="application.gamecontainer.scene.catalog.bar.*" xmlns:input="application.gamecontainer.chat.input.*" xmlns:button="application.components.button.*">
+	<fx:Script>
+		<![CDATA[
+			import application.GameApplication;
+			import application.components.popup.createbetgame.PopUpCreateBetGame;
+			import application.gamecontainer.scene.betpage.betgameitem.BetGameItem;
+			import application.gamecontainer.scene.betspage.betsgameitem.BetsGameItem;
+			import application.gamecontainer.scene.betspage.betuser.BetUserItem;
+			
+			import flash.utils.clearInterval;
+			import flash.utils.setInterval;
+			
+			import mx.events.FlexEvent;
+			
+			import utils.game.betroominfo.GameBetRoomInfo;
+			import utils.interfaces.ISceneContent;
+			import utils.user.User;
+			
+			private var _sid:int = -1;
+			private var _roomID:int;
+			[Bindable]
+			private var _iscreator:Boolean = false;
+			
+			[Bindable]
+			private var _ingame:Boolean = false;	
+			
+			private var _butInt:int = -1;
+			
+			public function set roomID(value:int):void{
+				_roomID = value;
+			}
+			
+			public function updateBetsInfo(result:Object):void{
+				if(int(result["creatorid"]) == GameApplication.app.userinfomanager.myuser.id){
+					_iscreator = true;
+					_ingame = true;
+				}else{
+					_iscreator = false;
+				}
+				
+				users.removeAllElements();
+				var usersitems:Object = new Object();
+				var i:uint;
+				
+				if(result["users"] != null){
+					for(i = 0; i < result["users"].length; i++){					
+						var item:BetUserItem = new BetUserItem();
+						var u:User = GameApplication.app.chatmanager.commonroom.getUser(result["users"][i]);
+						if(u){
+							item.user = u
+							usersitems[u.id] = item;					
+							item.roomID = _roomID;
+							users.addElement(item);
+							
+							if(u.id == GameApplication.app.userinfomanager.myuser.id){
+								_ingame = true;
+							}
+						}
+					}
+				}
+				
+				if(result["bets"] != null){
+					for(i = 0; i < result["bets"].length; i++){
+						if(usersitems[result["bets"][i]["betuserid"]]){
+							(usersitems[result["bets"][i]["betuserid"]] as BetUserItem).allbets += result["bets"][i]["bet"];
+							if(int(result["bets"][i]["userid"]) == GameApplication.app.userinfomanager.myuser.id){
+								(usersitems[result["bets"][i]["betuserid"]] as BetUserItem).mybets += result["bets"][i]["bet"];
+							}
+						}					
+					}
+				}
+				
+				usersitems = null;
+			}
+			
+			public function onHide():void{
+				if (_sid != -1){
+					clearInterval(_sid);
+					_sid = -1;
+				}
+				users.removeAllElements();
+			}
+			
+			protected function onBack(event:MouseEvent):void{
+				GameApplication.app.gamemanager.exitBetsGame(_roomID);
+				GameApplication.app.navigator.goBetsPage();
+				onHide();
+			}			
+		
+			protected function sendRequest(event:MouseEvent):void
+			{
+				GameApplication.app.gamemanager.sendRequestBetsGame(_roomID);
+				sendBtn.visible = false;
+				if(_butInt != -1){
+					clearInterval(_butInt);
+					_butInt = -1;
+				}
+				_butInt = setInterval(showSendBtn, 5000);				
+			}
+			
+			private function showSendBtn():void{
+				if(_butInt != -1){
+					clearInterval(_butInt);
+					_butInt = -1;
+				}
+				if(!_ingame){
+					sendBtn.visible = true;
+				}
+			}
+
+
+			protected function startGame(event:MouseEvent):void
+			{
+				GameApplication.app.gamemanager.startBetsGame(_roomID);				
+			}
+
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%" radiusX="30" radiusY="30">
+		<s:fill>
+			<s:SolidColor color="0x000000" alpha=".5"/>
+		</s:fill>
+	</s:Rect>
+	<s:VGroup width="100%" height="100%" paddingLeft="20" paddingRight="20">
+		<mx:Spacer height="10"/>
+		<s:Label width="100%" textAlign="center" text="Делайте ставки, господа!" fontSize="30" color="0xffffff" fontWeight="bold" fontStyle="italic"/>
+		
+		<s:Scroller width="100%" height="100%">
+			<s:VGroup id="users" width="100%" height="100%" horizontalAlign="center"/>
+		</s:Scroller>
+		<mx:Spacer height="10"/>		
+		
+		<s:HGroup verticalAlign="middle" width="100%">
+			<button:GameButton id="startBtn" label="начать игру" click="startGame(event)" visible="{_iscreator}" includeInLayout="{_iscreator}"/>
+			<button:GameButton id="sendBtn" label="подать заявку на участие" click="sendRequest(event)" visible="{!_ingame}" includeInLayout="{!_ingame}"/>
+			<mx:Spacer width="100%"/>
+			<button:GameButton id="back" label="выйти" click="onBack(event)"/>
+		</s:HGroup>
+		<mx:Spacer height="5"/>
+	</s:VGroup>
+</s:Group>

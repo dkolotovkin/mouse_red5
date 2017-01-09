@@ -1,0 +1,183 @@
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" implements="utils.interfaces.ISceneContent"
+		 xmlns:s="library://ns.adobe.com/flex/spark" width="100%" height="100%"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" left="50" right="50" top="20" bottom="20" xmlns:iconswf="application.components.iconswf.*" xmlns:catalog="application.gamecontainer.scene.catalog.*" xmlns:iteminfo="application.gamecontainer.scene.catalog.iteminfo.*" xmlns:bar="application.gamecontainer.scene.catalog.bar.*" xmlns:body="application.gamecontainer.scene.bag.body.*" xmlns:button="application.components.button.*" xmlns:top="application.gamecontainer.scene.top.*" xmlns:preloader="application.components.preloader.*" xmlns:money="application.gamecontainer.persinfobar.money.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import application.GameApplication;
+			import application.components.popup.buyclanexperience.PopUpBuyClanExperience;
+			import application.components.popup.destroyclan.PopUpDestroyWarning;
+			
+			import utils.interfaces.ISceneContent;
+			import utils.user.ClanUserRole;
+			import utils.user.User;
+			
+			private var _sid:int = -1;
+			private var _idclan:int;
+			[Bindable]
+			private var _iisowner:Boolean = false;
+			[Bindable]
+			private var _iinclan:Boolean = false;			
+			
+			private var _time:int = -1;
+			
+			public function set idclan(value:int):void{
+				_idclan = value;
+				if(GameApplication.app.userinfomanager.myuser.claninfo.clanid == _idclan && GameApplication.app.userinfomanager.myuser.claninfo.clanrole == ClanUserRole.OWNER){
+					_iisowner = true;
+				}
+				if(GameApplication.app.userinfomanager.myuser.claninfo.clanid == _idclan && GameApplication.app.userinfomanager.myuser.claninfo.clanrole > ClanUserRole.INVITED && 
+					GameApplication.app.userinfomanager.myuser.claninfo.clanrole != ClanUserRole.OWNER){
+					_iinclan = true;
+				}
+				GameApplication.app.clanmanager.getClanAllInfo(onGetClanInfo, _idclan);
+			}		
+			
+			private function addUsers(clans:Array):void{
+							
+			}
+			
+			private function onGetClanInfo(claninfo:Object):void{
+				
+				ownergr.visible = true;
+				_time = claninfo["time"];
+				
+				clantitle.text = "Клан " + claninfo["claninfo"]["title"];
+				ownertitle.text = claninfo["claninfo"]["ownertitle"];				
+				clanmoney.money = int(claninfo["claninfo"]["money"]);
+				clanexperience.text = claninfo["claninfo"]["experience"];
+				
+				var users:Array = claninfo["users"];				
+				if(users && users.length){					
+					for(var i:int = 0; i < users.length; i++){
+						var cui:ClanUserItem = new ClanUserItem();
+						cui.init(User.createFromObject(users[i]), users[i]["clandepositm"], users[i]["clandeposite"], users[i]["clanrole"], (i + 1), _iisowner);
+						body.addElement(cui);
+					}		
+					
+					bodygr.includeInLayout = true;
+					bodygr.visible = true;
+				}else{
+					fullgr.includeInLayout = true;
+					fullgr.visible = true;
+				}
+				
+				if(_iinclan){
+					if(_time > 0){
+						_sid = setInterval(timeUpdate, 1000);
+						getmoney.includeInLayout = getmoney.visible = false;
+						timel.includeInLayout = timel.visible = true;
+						timelUpdate();
+					}else{
+						getmoney.includeInLayout = getmoney.visible = true;
+						timel.includeInLayout = timel.visible = false;
+					}
+				}	
+				
+				preloader.includeInLayout = false;
+				preloader.visible = false;
+			}
+			
+			private function timeUpdate():void{
+				_time--;
+				timelUpdate();
+				if(_time <= 0){
+					clearInterval(_sid);
+					_sid = -1;
+					
+					getmoney.includeInLayout = getmoney.visible = true;
+					timel.includeInLayout = timel.visible = false;
+				}
+			}
+			private function timelUpdate():void{
+				var min:int = Math.floor(_time / 60);
+				var sec:int = _time - min * 60;
+				var min_s:String = "";
+				var sec_s:String = "";
+				
+				if(min > 0){
+					if(min < 10){
+						min_s = "0" + min + "мин ";
+					}else{
+						min_s = min + "мин ";
+					}
+				}				
+				if(sec > 0){
+					if(sec < 10){
+						sec_s = "0" + sec + "сек ";
+					}else{
+						sec_s = sec + "сек ";
+					}
+				}
+				
+				timel.text = "До зарплаты осталось: " + min_s + sec_s;
+			}
+			
+			protected function onBack(event:MouseEvent):void{
+				GameApplication.app.navigator.goClansRoom();
+			}
+			
+			protected function onDestroy(event:MouseEvent):void{	
+				GameApplication.app.popuper.show(new PopUpDestroyWarning());
+			}
+			
+			protected function onLeave(event:MouseEvent):void{	
+				GameApplication.app.clanmanager.leave();
+			}
+			
+			protected function onReset(event:MouseEvent):void{	
+				GameApplication.app.clanmanager.reset();
+			}
+			
+			protected function onGetMoney(event:MouseEvent):void{	
+				GameApplication.app.clanmanager.getMoney();
+			}
+			
+			protected function onBuyExp(event:MouseEvent):void{	
+				GameApplication.app.popuper.show(new PopUpBuyClanExperience());
+			}
+			
+			public function onHide():void{	
+				if (_sid !=- 1){
+					clearInterval(_sid);
+					_sid = -1;
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%" radiusX="30" radiusY="30">
+		<s:fill>
+			<s:SolidColor color="0x000000" alpha=".5"/>
+		</s:fill>
+	</s:Rect>
+	<s:VGroup width="100%" height="100%" paddingLeft="20" paddingRight="20" paddingTop="10" paddingBottom="10">		
+		<s:Label id="clantitle" width="100%" textAlign="center" text="" fontSize="30" color="0xffffff" fontWeight="bold" fontStyle="italic"/>
+		<s:HGroup id="ownergr" width="100%" horizontalAlign="center" verticalAlign="middle" visible="false">
+			<s:Label id="ownertitle" text="" height="13" color="0xFF9933" fontSize="14" fontWeight="normal" width="150" toolTip="Владелец клана"/>
+			<money:Money id="clanmoney" width="130" toolTip="Денежный фонд клана"/>	
+			<s:HGroup verticalAlign="middle" width="140" toolTip="Опыт клана">
+				<iconswf:IconMXML iconClass="{IconExperience}"/>
+				<s:Label id="clanexperience" text="" height="13" color="0xFFFFFF" fontSize="14" fontWeight="normal"/>
+			</s:HGroup>
+		</s:HGroup>
+		<mx:Spacer height="1"/>
+		<preloader:PreLoaderText id="preloader" text="Загрузка информации о клане..."/>
+		<s:Scroller id="bodygr" width="100%" height="100%" includeInLayout="false" visible="false">
+			<s:VGroup id="body" height="100%" width="100%"/>
+		</s:Scroller>
+		<s:HGroup id="fullgr" width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" includeInLayout="false" visible="false">
+			<s:Label fontSize="12" color="0xcccccc" text="В клане нет ни одного участника"/>
+		</s:HGroup>
+		<mx:Spacer height="10"/>
+		<s:HGroup width="100%" verticalAlign="middle">
+			<button:GameButton id="destroy" label="распустить клан" click="onDestroy(event)" includeInLayout="{_iisowner}" visible="{_iisowner}"/>
+			<button:GameButton id="reset" label="сбросить показатели" click="onReset(event)" includeInLayout="{_iisowner}" visible="{_iisowner}"/>
+			<button:GameButton id="leave" label="покинуть клан" click="onLeave(event)" includeInLayout="{_iinclan}" visible="{_iinclan}"/>
+			<button:GameButton id="getmoney" label="забрать зарплату" click="onGetMoney(event)" includeInLayout="{_iinclan}" visible="{_iinclan}"/>
+			<button:GameButton id="buyexp" label="купить опыт для клана" click="onBuyExp(event)" includeInLayout="{_iinclan || _iisowner}" visible="{_iinclan || _iisowner}"/>
+			<s:Label id="timel" color="0xffffff" fontSize="12" fontWeight="normal" includeInLayout="{_iinclan}" visible="{_iinclan}"/>
+			<mx:Spacer width="100%"/>
+			<button:GameButton id="back" label="назад" click="onBack(event)"/>
+		</s:HGroup>
+	</s:VGroup>
+</s:Group>

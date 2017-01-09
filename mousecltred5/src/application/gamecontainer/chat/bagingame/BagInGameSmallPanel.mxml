@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[			
+			import application.GameApplication;
+			import application.gamecontainer.scene.bag.article.BagInGameSmallArticle;
+			
+			import mx.events.FlexEvent;
+			
+			import utils.shop.item.Item;		
+			
+			public function clearPanel():void{
+				articles.removeAllElements();			
+			}	
+			
+			public function setitems():void
+			{
+				articles.removeAllElements();
+				for(var i:int = 0; i < GameApplication.app.shopmanager.gameinventory.length; i++){					
+					articles.addElement(GameApplication.app.shopmanager.gameinventory[i]);					
+				}
+			}
+		]]>
+	</fx:Script>	
+	
+	<s:Scroller top="1" width="100%" left="1" right="1" bottom="1">
+		<s:HGroup id="articles" width="100%" gap="15" paddingLeft="2" paddingRight="2" paddingBottom="2" horizontalAlign="center"/>
+	</s:Scroller>
+</s:Group>

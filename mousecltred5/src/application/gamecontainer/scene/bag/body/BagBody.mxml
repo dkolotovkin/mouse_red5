@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" paddingRight="10" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:button="application.components.button.*" xmlns:preloader="application.components.preloader.*">
+	<s:states>
+		<s:State name="loading"/>
+		<s:State name="normal"/>
+		<s:State name="full"/>
+	</s:states>
+	<fx:Script>
+		<![CDATA[
+			import application.gamecontainer.scene.bag.article.BagArticle;
+			import application.gamecontainer.scene.catalog.article.Article;
+			import application.gamecontainer.scene.catalog.article.ArticleArtefact;
+			import application.gamecontainer.scene.catalog.article.ArticleBagArtefact;
+			import application.gamecontainer.scene.catalog.article.ArticleMovieClass;
+			import application.gamecontainer.scene.catalog.article.catalog.CatalogArticle;
+			import application.gamecontainer.scene.catalog.article.catalog.CatalogArticleEvent;
+			
+			import flash.utils.clearInterval;
+			import flash.utils.setInterval;
+			
+			import mx.collections.errors.ItemPendingError;
+			import mx.events.FlexEvent;
+			
+			import utils.shop.artefact.Artefact;
+			import utils.shop.item.Item;						
+			
+			private var _articles:Array = new Array();
+			private var _sid:int = -1;
+			
+			public function removeItems():void{	
+				tilegroup && tilegroup.removeAllElements();
+				_articles = new Array();
+				currentState = "loading";
+			}			
+			
+			public function addItems(items:Array) : void {
+				if (items.length > 0){
+					currentState = "normal";
+					if (_sid !=- 1){
+						clearInterval(_sid);
+						_sid = -1;
+					}
+					_sid = setInterval(onAddItems, 50);
+					
+					for(var i:int = 0; i < items.length; i++){
+						var article:BagArticle = new BagArticle();
+						var item:Item = items[i];
+						article.init(item);					
+						_articles.push(article);						
+					}				
+				}else{
+					currentState = "full";
+				}
+			}
+			
+			public function addArtefactsItems(arts:Array) : void {
+				if (arts.length > 0){
+					currentState = "normal";
+					if (_sid !=- 1){
+						clearInterval(_sid);
+						_sid = -1;
+					}
+					_sid = setInterval(onAddItems, 50);
+					
+					for(var i:int = 0; i < arts.length; i++){
+						var article:ArticleBagArtefact = new ArticleBagArtefact();
+						var art:Artefact = arts[i];
+						article.init(art);					
+						_articles.push(article);						
+					}				
+				}else{
+					currentState = "full";
+				}
+			}
+			
+			private function onAddItems():void{				
+				if (_sid !=- 1){
+					clearInterval(_sid);
+					_sid = -1;
+				}
+				for(var i:int = 0; i < _articles.length; i++){					
+					tilegroup && tilegroup.addElement(_articles[i]);
+				}
+			}
+			
+			public function changeItemCount(itemid:int, count:int):void{
+				var article:BagArticle;
+				for(var i:int = 0; i < _articles.length; i++){
+					article = _articles[i] as BagArticle;
+					if(article.article.item.id == itemid){
+						if (count == 0){
+							if(tilegroup.contains(_articles[i] as BagArticle)){
+								tilegroup.removeElement((_articles[i] as BagArticle));
+								_articles.splice(i, 1);
+							}
+						}else if(count > 0){												
+							(_articles[i] as BagArticle).article.item.count = count;							
+						}
+						break;
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<preloader:PreLoaderCircle text="Загрузка инвентаря..." includeIn="loading"/>
+	<s:Scroller width="100%" height="100%" includeIn="normal">
+		<s:TileGroup id="tilegroup" width="100%" height="100%" verticalGap="20" horizontalGap="20" />
+	</s:Scroller>
+	<s:HGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" includeIn="full">
+		<s:Label fontSize="12" color="0xcccccc" text="У вас ничего нет. Вы можете купить необходимые вещи в магазине..."/>
+	</s:HGroup>
+</s:VGroup>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" initialize="group1_initializeHandler(event)"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" top="35" width="100%" height="100%" xmlns:button="application.components.button.*" xmlns:money="application.gamecontainer.persinfobar.money.*" xmlns:iconswf="application.components.iconswf.*">
+	<fx:Script>
+		<![CDATA[			
+			import application.GameApplication;
+			
+			import mx.events.FlexEvent;
+			
+			import spark.events.TextOperationEvent;
+			
+			protected function onBuy(event:MouseEvent):void
+			{
+				var bexp:int = Math.floor(int(textinput.text) / 4);
+				if (bexp > 0){
+					GameApplication.app.shopmanager.buyexperience(bexp);
+				}else{
+					GameApplication.app.popuper.showInfoPopUp("Введите корректную цену покупки.");
+				}
+			}
+			
+
+			protected function textinput_changeHandler(event:TextOperationEvent):void
+			{
+				exp.text = " = " + Math.floor(int(textinput.text) / 4) + " опыта";
+			}
+
+
+			protected function group1_initializeHandler(event:FlexEvent):void
+			{
+				textinput.text = "4";
+				exp.text = " = " + Math.floor(int(textinput.text) / 4) + " опыта";
+			}
+
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%" height="100%">
+		<s:Label text="Устали зарабатывать опыт честным путем? У нас для вас есть супер предложение. Купите опыт за игровую валюту по курсу: " width="350" color="0xFF9933" fontSize="14" fontWeight="normal"/>
+		<s:HGroup verticalAlign="middle" width="100%">
+			<s:TextInput id="textinput" change="textinput_changeHandler(event)" maxChars="25" width="50" color="0xffffff" contentBackgroundColor="0x666666" focusAlpha="0" focusEnabled="false" borderColor="0x333333"/>
+			<iconswf:IconMXML iconClass="{IconEuro}"/>
+			<s:Label id="exp" text=" = 1000 опыта" width="300" color="0xFF9933" fontSize="14" fontWeight="normal"/>
+		</s:HGroup>
+		
+		<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="center">			
+			<button:GameButton id="changebtn" label="купить" click="onBuy(event)"/>
+		</s:HGroup>
+	</s:VGroup>
+</s:Group>

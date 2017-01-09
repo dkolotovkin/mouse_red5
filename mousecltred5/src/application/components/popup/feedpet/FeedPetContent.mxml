@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" top="35" width="100%" height="100%" xmlns:button="application.components.button.*" xmlns:money="application.gamecontainer.persinfobar.money.*" xmlns:iconswf="application.components.iconswf.*">
+	<fx:Script>
+		<![CDATA[
+			import application.GameApplication;
+			
+			public function init(price:int):void{
+				nlprize.money = price;
+			}
+
+			protected function feedbtn_clickHandler(event:MouseEvent):void
+			{
+				GameApplication.app.petmanager.feedPet();
+			}
+
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%" height="100%" verticalAlign="middle">
+		<iconswf:IconMXML id="nlicon" iconClass="{ShopFood}" width="100"/>
+		<s:VGroup width="100%" height="100%" verticalAlign="middle">
+			<s:Label text="Для восстановления энергии помощника необходимо его кормить. Чем выше энергия, тем больше шансов найти артефакт в забеге." color="0xFF9933" width="300" fontSize="14" fontWeight="normal"/>
+			<s:HGroup width="100%" verticalAlign="middle">
+				<s:Label text="Цена: " color="0xffffff" fontSize="14" fontWeight="normal"/>
+				<money:Money id="nlprize" money="{0}"/>				
+			</s:HGroup>
+			<button:GameButton id="feedbtn" label="покормить" click="feedbtn_clickHandler(event)"/>
+		</s:VGroup>
+	</s:HGroup>
+	
+</s:Group>

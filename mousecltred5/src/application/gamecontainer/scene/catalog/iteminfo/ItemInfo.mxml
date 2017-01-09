@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" paddingLeft="10" paddingRight="10"
+		  xmlns:s="library://ns.adobe.com/flex/spark" horizontalAlign="center"
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="200" height="100%" xmlns:catalog="application.gamecontainer.scene.catalog.article.catalog.*" xmlns:button="application.components.button.*">
+
+	<fx:Script>
+		<![CDATA[
+			import application.GameApplication;
+			
+			import utils.shop.CategoryType;
+			import utils.shop.itemprototype.ItemPrototype;			
+			
+			protected function onBack(event:MouseEvent):void
+			{
+				GameApplication.app.navigator.goHome();
+			}
+
+			protected function onBuy(event:MouseEvent):void
+			{
+				//GameApplication.app.shopmanager.buyItem(selectedArticle.prototype.id);
+				GameApplication.app.shopmanager.buyUseItem(selectedArticle.prototype.id);
+			}
+			
+			public function changeInfo(itemprototype:ItemPrototype):void{
+				selectedArticle.init(itemprototype);
+				description.text = itemprototype.description;
+				articlename.text = itemprototype.title;
+				
+				if(itemprototype.categoryid == CategoryType.MOUSES || itemprototype.categoryid == CategoryType.ACCESSORIES){
+					if(itemprototype.count == 1){
+						description.text += "\nДействие: " + itemprototype.count + " день.";
+					}else if(itemprototype.count > 1 && itemprototype.count < 5){
+						description.text += "\nДействие: " + itemprototype.count + " дня.";
+					}else{
+						description.text += "\nДействие: " + itemprototype.count + " дней.";
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<s:Label id="articlename" color="0xFF9933" fontSize="16" width="100%" textAlign="center" height="25"/>
+	<catalog:CatalogArticle id="selectedArticle" mouseChildren="false" mouseEnabled="false"/>
+	<s:Scroller width="100%" height="100%">
+		<s:Group width="100%">
+			<s:Label id="description" color="0xFFFFFF" fontSize="12" width="100%"/>
+		</s:Group>
+	</s:Scroller>
+	<s:HGroup gap="20">
+		<button:GameButton id="buy" label="купить" click="onBuy(event)"/>
+		<button:GameButton id="back" label="назад" click="onBack(event)"/>
+	</s:HGroup>
+</s:VGroup>

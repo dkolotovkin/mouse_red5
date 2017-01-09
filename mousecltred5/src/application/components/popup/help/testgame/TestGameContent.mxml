@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" top="35" width="100%" height="100%" xmlns:button="application.components.button.*" xmlns:money="application.gamecontainer.persinfobar.money.*" xmlns:iconswf="application.components.iconswf.*">
+	<fx:Script>
+		<![CDATA[
+			import application.GameApplication;
+			
+			import flashx.textLayout.edit.SelectionFormat;
+			
+			import mx.events.FlexEvent;		
+		
+			
+			protected function changebtn_clickHandler(event:MouseEvent):void{
+				GameApplication.app.navigator.goGameWorldTest();
+				GameApplication.app.popuper.hidePopUp();
+			}
+			
+
+			protected function exit_clickHandler(event:MouseEvent):void
+			{
+				GameApplication.app.popuper.hidePopUp();
+			}
+
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%" height="100%" verticalAlign="middle">
+		<iconswf:IconMXML scale="2" iconClass="{HomeMouseSkin}"/>
+		<s:VGroup width="100%" height="100%">
+			<s:Label text="Заработать опыт и деньги в игре, можно, учавствуя в забегах. Для того чтобы попасть в забег нужно нажать на большую кнопку на экране                    . Главная цель забега - найти сыр         и принести его первым в норку        . Управлять персонажем (мышкой) нужно стрелками (или клавишами WSDA) на клавиатуре." width="400" color="0xFF9933" fontSize="14" fontWeight="normal"/>
+			<iconswf:IconMXML iconClass="{IconButGame}" includeInLayout="false" x="180" y="30" scale=".3"/>
+			<iconswf:IconMXML iconClass="{CheeseSkin}" includeInLayout="false" x="95" y="55" scale=".8"/>
+			<iconswf:IconMXML iconClass="{MinkSkin}" includeInLayout="false" x="335" y="55" scale=".8"/>
+			<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="right">		
+				<button:GameButton id="exit" label="выйти без бонуса" click="exit_clickHandler(event)"/>
+				<mx:Spacer width="100%"/>
+				<button:GameButton id="changebtn" label="в забег" click="changebtn_clickHandler(event)"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:HGroup>	
+</s:Group>

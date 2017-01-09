@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="WEB-INF/src/|WEB-INF/src/|lib/mysql-connector-java-5.1.13/" kind="src" path="src"/>
+	<classpathentry kind="src" path="WEB-INF/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="lib" path="C:/Red5/lib/DBPool-5.0.jar"/>
+	<classpathentry kind="lib" path="C:/Red5/lib/jcl-over-slf4j-1.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/Red5/lib/jul-to-slf4j-1.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/Red5/lib/log4j-over-slf4j-1.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/Red5/lib/logback-classic-0.9.18.jar"/>
+	<classpathentry kind="lib" path="C:/Red5/lib/logback-core-0.9.18.jar"/>
+	<classpathentry kind="lib" path="C:/Red5/lib/slf4j-api-1.5.10.jar"/>
+	<classpathentry kind="lib" path="C:/Red5/red5.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Red5/lib/mysql-connector-java-5.1.7-bin.jar"/>
+	<classpathentry kind="output" path="WEB-INF/classes"/>
+</classpath>
